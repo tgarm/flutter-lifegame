@@ -36,11 +36,13 @@ class _LifePanelState extends State<LifePanel> {
   int tileRows = 12, tileCols = 16;
   List<List> _lifeMap = [];
   final Random _random = Random();
+  bool _running = false;
 
   @override
   void initState() {
     super.initState();
     _initMap(tileCols, tileRows);
+    _running = false;
   }
 
   void _initMap(cols, rows) {
@@ -105,6 +107,33 @@ class _LifePanelState extends State<LifePanel> {
     });
   }
 
+  void _runToggle(){
+    if(_running){
+      setState(() {
+        _running = false;
+      });
+    }else{
+      setState(() {
+        _running = true;
+      });
+    }
+  }
+
+  String _runCaption(){
+    if(_running){
+      return 'Stop';
+    }else{
+      return 'Start';
+    }
+  }
+
+  TextButton _stepButton(){
+    if(_running){
+      return const TextButton(onPressed:null, child:Text('Step'));
+    }else{
+      return TextButton(onPressed: _runStep, child: const Text('Step'));
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final wsize = MediaQuery.of(context).size;
@@ -128,11 +157,10 @@ class _LifePanelState extends State<LifePanel> {
               children: <Widget>[
                 TextButton(
                     onPressed: () => {_resetMap()}, child: const Text('Reset')),
+                _stepButton(),
                 TextButton(
-                    onPressed: () => {_runStep()}, child: const Text('Step')),
-                TextButton(
-                  child: const Text('Run'),
-                  onPressed: () => {print("run?")},
+                  child: Text(_runCaption()),
+                  onPressed: () => {_runToggle()},
                 )
               ],
             )
