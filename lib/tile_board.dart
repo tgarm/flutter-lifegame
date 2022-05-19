@@ -1,16 +1,15 @@
-// ignore: file_names
 import "package:flutter/material.dart";
-
+import "life_map.dart";
 class TileBoard extends StatelessWidget {
   const TileBoard(this.tileMap, this.tileSize, {Key? key}) : super(key: key);
-  final List<List> tileMap;
+  final LifeMap tileMap;
   final Size tileSize;
 
   Widget tileLine(int idx) {
     return Row(
-        children: List.generate(tileMap[0].length, (index) {
+        children: List.generate(tileMap.tileCols, (index) {
       Color c = Colors.white;
-      if (tileMap[idx][index] != '') {
+      if (tileMap.isAlive(idx, index)) {
         c = Colors.green;
       }
       return Container(
@@ -25,7 +24,7 @@ class TileBoard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: List.generate(tileMap.length, (index) => tileLine(index)),
+      children: List.generate(tileMap.tileRows, (index) => tileLine(index)),
     );
   }
 }
