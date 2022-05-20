@@ -1,5 +1,18 @@
 import 'dart:math';
 
+List<List> LexiMaps = [
+  [
+    '110',
+    '101',
+    '010'
+  ],[
+    '1100',
+    '1010',
+    '0010',
+    '0011'
+  ]
+];
+
 class LifeMap {
   int tileCols = 0;
   int tileRows = 0;
@@ -13,15 +26,37 @@ class LifeMap {
       if (cols != tileCols || rows != tileRows || _map.isEmpty) {
         tileCols = cols;
         tileRows = rows;
-        clear();
+        clear(1);
       }
     }    
   }
-  clear(){
+  int patternCount(){
+    return LexiMaps.length;
+  }
+
+  clear(int pattern){
     _map = List.generate(tileRows, (index) => List.filled(tileCols, ''));
-    final cellCnt = (tileCols * tileRows * 0.1).floor();
-    for (var i = 0; i < cellCnt; i++) {
-      _map[_random.nextInt(tileRows)][_random.nextInt(tileCols)] = 'o';
+    if(pattern>=0 && pattern< patternCount()){
+      final lexi = LexiMaps[pattern];
+      if(tileRows>lexi.length && tileCols>lexi[0].length){
+        final cx = ((tileCols-lexi[0].length)/2).floor();
+        final cy = ((tileRows-lexi.length)/2).floor();
+        int code1 = '1'.codeUnitAt(0);
+        for(int y=0;y<lexi.length;y++){
+          final String line = lexi[y];
+          for(int x=0;x<line.length;x++){
+              int c = line.codeUnitAt(x);
+              if(c==code1){
+                _map[cy+y][cx+x] = 'o';
+              }
+          }
+        }      
+      }
+    }else{
+      final cellCnt = (tileCols * tileRows * 0.1).floor();
+      for (var i = 0; i < cellCnt; i++) {
+        _map[_random.nextInt(tileRows)][_random.nextInt(tileCols)] = 'o';
+      }
     }
   }
 
@@ -56,15 +91,17 @@ class LifeMap {
     return sum;
   }
   void step(){
+    List<List> newMap = List.generate(tileRows, (index) => List.filled(tileCols, ''));
     for (var row = 0; row < tileRows; row++) {
         for (var col = 0; col < tileCols; col++) {
           final sum = surroundSum(row, col);
           if (sum == 2 || sum == 3) {
-            _map[row][col] = 'o';
+            newMap[row][col] = 'o';
           } else {
-            _map[row][col] = '';
+            newMap[row][col] = '';
           }
         }
       }
+    _map = newMap;
   }
 }

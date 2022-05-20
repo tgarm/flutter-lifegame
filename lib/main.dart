@@ -37,11 +37,12 @@ class _LifePanelState extends State<LifePanel> {
   final _lifeMap = LifeMap(12, 16);
   bool _running = false;
   late RestartableTimer _ticker;
+  int patternId = 0;
 
   @override
   void initState() {
     super.initState();
-    _lifeMap.clear();
+    _lifeMap.clear(patternId);
     _running = false;
     _ticker = RestartableTimer(const Duration(milliseconds: 400), () {
       if (_running) {
@@ -52,8 +53,12 @@ class _LifePanelState extends State<LifePanel> {
   }
 
   void _resetMap() {
+    patternId++;
+    if(patternId>=_lifeMap.patternCount()){
+      patternId = 0;
+    }
     setState(() {
-      _lifeMap.clear();
+      _lifeMap.clear(patternId);
     });
   }
 
@@ -122,7 +127,8 @@ class _LifePanelState extends State<LifePanel> {
                 TextButton(
                   child: Text(_runCaption()),
                   onPressed: () => {_runToggle()},
-                )
+                ),
+                Text("pattern: $patternId")
               ],
             )
           ],

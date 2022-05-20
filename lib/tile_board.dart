@@ -12,11 +12,14 @@ class TileBoard extends StatelessWidget {
       if (tileMap.isAlive(idx, index)) {
         c = Colors.green;
       }
-      return Container(
-        padding: EdgeInsets.symmetric(
-            vertical: tileSize.width / 2, horizontal: tileSize.height / 2),
-        color: c,
-      );
+      String n = tileMap.surroundSum(idx, index).toString();
+      return 
+      SizedBox(width: tileSize.width, height: tileSize.height,child:
+        Container(
+          padding: const EdgeInsets.all(4.0),
+          color: c,
+          child: Text(n),
+        ));
     }));
   }
 
