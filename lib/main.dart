@@ -1,3 +1,4 @@
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'tile_board.dart';
 import 'life_map.dart';
@@ -33,62 +34,77 @@ class LifePanel extends StatefulWidget {
 class _LifePanelState extends State<LifePanel> {
   static const tileSize = Size(32, 32);
   static const otherHeight = 200;
-  final _lifeMap = LifeMap(12,16);
+  final _lifeMap = LifeMap(12, 16);
   bool _running = false;
+  late RestartableTimer _ticker;
 
   @override
   void initState() {
     super.initState();
     _lifeMap.clear();
     _running = false;
+    _ticker = RestartableTimer(const Duration(milliseconds: 400), () {
+      if (_running) {
+        _runStep();
+        _ticker.reset();
+      }
+    });
   }
-
 
   void _resetMap() {
     setState(() {
       _lifeMap.clear();
     });
   }
+
   void _runStep() {
     setState(() {
       _lifeMap.step();
     });
   }
 
-  void _runToggle(){
-    if(_running){
+  void _runToggle() {
+    if (_running) {
+      _ticker.cancel();
       setState(() {
         _running = false;
       });
-    }else{
+    } else {
+      _ticker.reset();
       setState(() {
         _running = true;
       });
     }
   }
 
-  String _runCaption(){
-    if(_running){
+  @override
+  void dispose() {
+    _ticker.cancel();
+    super.dispose();
+  }
+
+  String _runCaption() {
+    if (_running) {
       return 'Stop';
-    }else{
+    } else {
       return 'Start';
     }
   }
 
-  TextButton _stepButton(){
-    if(_running){
-      return const TextButton(onPressed:null, child:Text('Step'));
-    }else{
+  TextButton _stepButton() {
+    if (_running) {
+      return const TextButton(onPressed: null, child: Text('Step'));
+    } else {
       return TextButton(onPressed: _runStep, child: const Text('Step'));
     }
-    
   }
+
   @override
   Widget build(BuildContext context) {
     final wsize = MediaQuery.of(context).size;
     final cols = (wsize.width / tileSize.width).floor();
     final rows = ((wsize.height - otherHeight) / tileSize.height).floor();
-    _lifeMap.setSize(cols,rows);
+    _lifeMap.setSize(cols, rows);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
