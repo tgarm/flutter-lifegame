@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'tile_board.dart';
@@ -96,11 +98,11 @@ class _LifePanelState extends State<LifePanel> {
     }
   }
 
-  TextButton _stepButton() {
+  ElevatedButton _stepButton() {
     if (_running) {
-      return const TextButton(onPressed: null, child: Text('Step'));
+      return const ElevatedButton(onPressed: null, child: Text('Step'));
     } else {
-      return TextButton(onPressed: _runStep, child: const Text('Step'));
+      return ElevatedButton(onPressed: _runStep, child: const Text('Step'));
     }
   }
 
@@ -120,17 +122,22 @@ class _LifePanelState extends State<LifePanel> {
           children: <Widget>[
             TileBoard(_lifeMap, tileSize),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget> [
+                    Text("Pattern: $patternId", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black54),)
+                  ]),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                TextButton(
+                  ElevatedButton(
                     onPressed: () => {_resetMap()}, child: const Text('Reset')),
-                _stepButton(),
-                TextButton(
-                  child: Text(_runCaption()),
-                  onPressed: () => {_runToggle()},
-                ),
-                Text("pattern: $patternId")
+                  _stepButton(),
+                  ElevatedButton(
+                    child: Text(_runCaption()),
+                    onPressed: () => {_runToggle()},
+                  ),                  
               ],
-            )
+            )          
           ],
         ),
       ),

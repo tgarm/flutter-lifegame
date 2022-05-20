@@ -1,15 +1,17 @@
 import 'dart:math';
 
-List<List> LexiMaps = [
-  [
+const List<List> lexiMaps = [
+  [ '100',
+    '101',
+    '110',
+  ],[
     '110',
     '101',
     '010'
   ],[
-    '1100',
-    '1010',
-    '0010',
-    '0011'
+    '010',
+    '111',
+    '101',
   ]
 ];
 
@@ -31,13 +33,13 @@ class LifeMap {
     }    
   }
   int patternCount(){
-    return LexiMaps.length;
+    return lexiMaps.length;
   }
 
   clear(int pattern){
     _map = List.generate(tileRows, (index) => List.filled(tileCols, ''));
     if(pattern>=0 && pattern< patternCount()){
-      final lexi = LexiMaps[pattern];
+      final lexi = lexiMaps[pattern];
       if(tileRows>lexi.length && tileCols>lexi[0].length){
         final cx = ((tileCols-lexi[0].length)/2).floor();
         final cy = ((tileRows-lexi.length)/2).floor();
@@ -50,6 +52,7 @@ class LifeMap {
                 _map[cy+y][cx+x] = 'o';
               }
           }
+        
         }      
       }
     }else{
@@ -83,6 +86,9 @@ class LifeMap {
     int sum = 0;
     for (var y = row - 1; y <= row + 1; y++) {
       for (var x = col - 1; x <= col + 1; x++) {
+        if(y==row && x==col){
+          continue;
+        }
         if (isAlive(y, x)) {
           sum++;
         }
@@ -95,7 +101,7 @@ class LifeMap {
     for (var row = 0; row < tileRows; row++) {
         for (var col = 0; col < tileCols; col++) {
           final sum = surroundSum(row, col);
-          if (sum == 2 || sum == 3) {
+          if ((sum == 2 && _map[row][col]=='o')|| sum == 3) {
             newMap[row][col] = 'o';
           } else {
             newMap[row][col] = '';

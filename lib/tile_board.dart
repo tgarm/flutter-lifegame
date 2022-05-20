@@ -8,9 +8,9 @@ class TileBoard extends StatelessWidget {
   Widget tileLine(int idx) {
     return Row(
         children: List.generate(tileMap.tileCols, (index) {
-      Color c = Colors.white;
+      Color c = Colors.black12;
       if (tileMap.isAlive(idx, index)) {
-        c = Colors.green;
+        c = Colors.amberAccent;
       }
       String n = tileMap.surroundSum(idx, index).toString();
       return 
