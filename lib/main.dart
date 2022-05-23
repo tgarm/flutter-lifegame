@@ -4,6 +4,7 @@ import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'tile_board.dart';
 import 'life_map.dart';
+import 'package:clipboard/clipboard.dart';
 
 void main() {
   runApp(const LifeGameApp());
@@ -40,6 +41,7 @@ class _LifePanelState extends State<LifePanel> {
   bool _running = false;
   late RestartableTimer _ticker;
   int patternId = 0;
+  bool _offstage = false;
 
   @override
   void initState() {
@@ -135,7 +137,17 @@ class _LifePanelState extends State<LifePanel> {
                   ElevatedButton(
                     child: Text(_runCaption()),
                     onPressed: () => {_runToggle()},
-                  ),                  
+                  ), 
+                  ElevatedButton(
+                    onPressed: () {
+                      FlutterClipboard.copy(_lifeMap.dump()).then((value) {
+                        showDialog(context: context, builder: (BuildContext context){
+                          return const AlertDialog(title: Text("saved to clipboard"));
+                        });
+                      });
+                    },
+                    child: const Text('Save')
+                  )                 
               ],
             )          
           ],
