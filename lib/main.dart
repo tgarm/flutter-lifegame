@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'tile_board.dart';
@@ -46,7 +44,7 @@ class _LifePanelState extends State<LifePanel> {
   @override
   void initState() {
     super.initState();
-    _lifeMap.clear(patternId);
+    _lifeMap.clear();
     _running = false;
     _ticker = RestartableTimer(const Duration(milliseconds: 400), () {
       if (_running) {
@@ -56,14 +54,10 @@ class _LifePanelState extends State<LifePanel> {
     });
   }
 
-  void _resetMap() {
+  void _resetMap() async {
     patternId++;
-    if(patternId>=_lifeMap.patternCount()){
-      patternId = 0;
-    }
-    setState(() {
-      _lifeMap.clear(patternId);
-    });
+    patternId = await _lifeMap.loadLexi(patternId);
+    setState(() {});
   }
 
   void _runStep() {
@@ -142,12 +136,28 @@ class _LifePanelState extends State<LifePanel> {
                     onPressed: () {
                       FlutterClipboard.copy(_lifeMap.dump()).then((value) {
                         showDialog(context: context, builder: (BuildContext context){
-                          return const AlertDialog(title: Text("saved to clipboard"));
+                          return AlertDialog(
+                            title: const Text("saved to clipboard"),
+                            actions: <Widget>[
+                              TextButton(
+                                child: const Text('OK'),
+                                onPressed: () => Navigator.pop(context, 'OK'), 
+                              )
+                            ],);
                         });
                       });
                     },
                     child: const Text('Save')
-                  )                 
+                  ),
+                  ElevatedButton(
+                    onPressed: () => {
+                      FlutterClipboard.paste().then((value) {
+                        setState(() {
+                          _lifeMap.load(value);
+                        });
+                      })
+                    }, 
+                    child: const Text('load'))                 
               ],
             )          
           ],

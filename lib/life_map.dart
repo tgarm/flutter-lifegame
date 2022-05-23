@@ -1,24 +1,7 @@
 import 'dart:convert';
-import 'dart:math';
-
-
-const List<List> lexiMaps = [
-  [ '100',
-    '101',
-    '110',
-  ],[
-    '110',
-    '101',
-    '010'
-  ],[
-    '010',
-    '111',
-    '101',
-  ]
-];
+import 'package:flutter/services.dart' show rootBundle;
 
 class LifeMap {
-  final Random _random = Random();
   List<List> _map = [];
 
   int get tileCols{
@@ -30,51 +13,25 @@ class LifeMap {
     return _map.length;
   }
 
-
   LifeMap(int w, int h){
     setSize(w,h);
   }
   setSize(int cols, int rows){
     if (rows > 0) {
       if (cols != tileCols || rows != tileRows || _map.isEmpty) {
-        clear(1, cols:cols, rows: rows);
+        clear(cols:cols, rows: rows);
       }
     }    
   }
-  int patternCount(){
-    return lexiMaps.length;
-  }
 
-  clear(int pattern, {int cols = 0, int rows = 0}){
+  clear({int cols = 0, int rows = 0}) {
     if(cols==0){
       cols = tileCols;
     }
     if(rows==0){
       rows = tileRows;
     }
-    final int code1 = '1'.codeUnitAt(0);
-    _map = List.generate(rows, (index) => List.filled(cols, ''));
-    if(pattern>=0 && pattern< patternCount()){
-      final lexi = lexiMaps[pattern];
-      if(rows>lexi.length && cols>lexi[0].length){
-        final cx = ((cols-lexi[0].length)/2).floor();
-        final cy = ((rows-lexi.length)/2).floor();
-        for(int y=0;y<lexi.length;y++){
-          final String line = lexi[y];
-          for(int x=0;x<line.length;x++){
-              int c = line.codeUnitAt(x);
-              if(c==code1){
-                _map[cy+y][cx+x] = 'o';
-              }
-          }
-        }      
-      }
-    }else{
-      final cellCnt = (cols * rows * 0.1).floor();
-      for (var i = 0; i < cellCnt; i++) {
-        _map[_random.nextInt(rows)][_random.nextInt(cols)] = 'o';
-      }
-    }
+    _map = List.generate(rows, (index) => List.filled(cols, 0));
   }
 
   bool isAlive(row, col) {
@@ -90,7 +47,7 @@ class LifeMap {
     if (col < 0) {
       col += tileCols;
     }
-    if (_map[row][col] == '') {
+    if (_map[row][col] == 0) {
       return false;
     }
     return true;
@@ -111,14 +68,14 @@ class LifeMap {
     return sum;
   }
   void step(){
-    List<List> newMap = List.generate(tileRows, (index) => List.filled(tileCols, ''));
+    List<List> newMap = List.generate(tileRows, (index) => List.filled(tileCols, 0));
     for (var row = 0; row < tileRows; row++) {
         for (var col = 0; col < tileCols; col++) {
           final sum = surroundSum(row, col);
-          if ((sum == 2 && _map[row][col]=='o')|| sum == 3) {
-            newMap[row][col] = 'o';
+          if ((sum == 2 && _map[row][col]==1)|| sum == 3) {
+            newMap[row][col] = 1;
           } else {
-            newMap[row][col] = '';
+            newMap[row][col] = 0;
           }
         }
       }
@@ -126,11 +83,45 @@ class LifeMap {
   }
 
   String dump(){
-    return jsonEncode(_map);
+    List<String> lines = [];
+    for(final mapl in _map){
+      String line = utf8.decode(List.generate(mapl.length, (int index)=> mapl[index]+0x20));
+      lines.add(line);
+    }
+    const encoder = JsonEncoder.withIndent(' ');
+    return encoder.convert(lines);
   }
 
   void load(String data){
-    _map = jsonDecode(data);
+    final List parsed = jsonDecode(data);
+    final List<List>map = [];
+    for(final line in parsed){
+      final lineCodes = utf8.encode(line);
+      map.add(List.generate(line.length, (int index)=> lineCodes[index]-0x20));
+    }
+    _map =  map;
   }
 
+  Future<int> loadLexi(int index) async {
+   final lexiList = jsonDecode(await rootBundle.loadString('assets/pattern.json'));
+
+   if(index<0){
+     index = 0;
+   }
+    final int lexiCount = lexiList.length;
+    while(index>=lexiCount){
+      index -= lexiCount;
+    }
+    clear();
+    final lexi = lexiList[index];
+    final startcol = ((tileCols - lexi[0].length)/2).floor();
+    final startrow = ((tileRows - lexi.length)/2).floor();
+    for(var y=0;y<lexi.length;y++){
+      final line = utf8.encode(lexi[y]);
+      for(var x = 0; x<line.length; x++){
+        _map[startrow+y][startcol+x] = line[x]- 0x20;
+      }
+    }
+    return index;
+  }
 }
