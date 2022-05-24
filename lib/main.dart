@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'life_panel.dart';
 
+
 void main() {
   runApp(const LifeGameApp());
 }
@@ -19,3 +20,5 @@ class LifeGameApp extends StatelessWidget {
     );
   }
 }
+
+

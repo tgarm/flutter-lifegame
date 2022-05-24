@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'tile_board.dart';
 import 'life_map.dart';
 import 'package:clipboard/clipboard.dart';
+import 'setting_page.dart';
 
 class LifePanel extends StatefulWidget {
   const LifePanel({Key? key, required this.title}) : super(key: key);
@@ -91,6 +92,20 @@ class _LifePanelState extends State<LifePanel> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: (){
+              Navigator.push(
+                context, 
+                MaterialPageRoute(builder: (context) => const SettingPage()),);
+            },
+            iconSize: 46,
+            alignment: Alignment.topRight,
+
+          ),
+        ],
       ),
       body: Center(
         child: Column(
