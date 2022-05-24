@@ -116,50 +116,55 @@ class _LifePanelState extends State<LifePanel> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            TileBoard(_lifeMap, tileSize),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget> [
-                    Text("Pattern: $patternId", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black54),)
-                  ]),
+            TileBoard(_lifeMap, tileSize, true),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+              Text(
+                "Pattern: $patternId",
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.black54),
+              )
+            ]),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                  ElevatedButton(
+                ElevatedButton(
                     onPressed: () => {_resetMap()}, child: const Text('Reset')),
-                  _stepButton(),
-                  ElevatedButton(
-                    child: Text(_runCaption()),
-                    onPressed: () => {_runToggle()},
-                  ), 
-                  ElevatedButton(
+                _stepButton(),
+                ElevatedButton(
+                  child: Text(_runCaption()),
+                  onPressed: () => {_runToggle()},
+                ),
+                ElevatedButton(
                     onPressed: () {
                       FlutterClipboard.copy(_lifeMap.dump()).then((value) {
-                        showDialog(context: context, builder: (BuildContext context){
-                          return AlertDialog(
-                            title: const Text("saved to clipboard"),
-                            actions: <Widget>[
-                              TextButton(
-                                child: const Text('OK'),
-                                onPressed: () => Navigator.pop(context, 'OK'), 
-                              )
-                            ],);
-                        });
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text("saved to clipboard"),
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: const Text('OK'),
+                                    onPressed: () =>
+                                        Navigator.pop(context, 'OK'),
+                                  )
+                                ],
+                              );
+                            });
                       });
                     },
-                    child: const Text('Save')
-                  ),
-                  ElevatedButton(
+                    child: const Text('Save')),
+                ElevatedButton(
                     onPressed: () => {
-                      FlutterClipboard.paste().then((value) {
-                        setState(() {
-                          _lifeMap.load(value);
-                        });
-                      })
-                    }, 
-                    child: const Text('load'))                 
+                          FlutterClipboard.paste().then((value) {
+                            setState(() {
+                              _lifeMap.load(value);
+                            });
+                          })
+                        },
+                    child: const Text('load'))
               ],
-            )          
+            )
           ],
         ),
       ),
