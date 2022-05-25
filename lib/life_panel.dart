@@ -1,85 +1,35 @@
-import 'package:async/async.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'map_controller.dart';
 import 'tile_board.dart';
-import 'life_map.dart';
 import 'package:clipboard/clipboard.dart';
 import 'setting_page.dart';
 
-class LifePanel extends StatefulWidget {
+class LifePanel extends StatelessWidget {
   const LifePanel({Key? key, required this.title}) : super(key: key);
 
   final String title;
-
-  @override
-  State<LifePanel> createState() => _LifePanelState();
-}
-
-class _LifePanelState extends State<LifePanel> {
   static const tileSize = Size(32, 32);
   static const otherHeight = 200;
-  final _lifeMap = LifeMap(12, 16);
-  bool _running = false;
-  late RestartableTimer _ticker;
-  int patternId = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _lifeMap.clear();
-    _running = false;
-    _ticker = RestartableTimer(const Duration(milliseconds: 400), () {
-      if (_running) {
-        _runStep();
-        _ticker.reset();
-      }
-    });
-  }
-
-  void _resetMap() async {
-    patternId++;
-    patternId = await _lifeMap.loadLexi(patternId);
-    setState(() {});
-  }
-
-  void _runStep() {
-    setState(() {
-      _lifeMap.step();
-    });
-  }
 
   void _runToggle() {
-    if (_running) {
-      _ticker.cancel();
-      setState(() {
-        _running = false;
-      });
+    final to = MapController.to;
+    if (to.running) {
+      to.stop();
     } else {
-      _ticker.reset();
-      setState(() {
-        _running = true;
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _ticker.cancel();
-    super.dispose();
-  }
-
-  String _runCaption() {
-    if (_running) {
-      return 'Stop';
-    } else {
-      return 'Start';
+      to.start();
     }
   }
 
   ElevatedButton _stepButton() {
-    if (_running) {
+    if (MapController.to.running) {
       return const ElevatedButton(onPressed: null, child: Text('Step'));
     } else {
-      return ElevatedButton(onPressed: _runStep, child: const Text('Step'));
+      return ElevatedButton(
+          onPressed: () {
+            MapController.to.step();
+          },
+          child: const Text('Step'));
     }
   }
 
@@ -88,81 +38,66 @@ class _LifePanelState extends State<LifePanel> {
     final wsize = MediaQuery.of(context).size;
     final cols = (wsize.width / tileSize.width).floor();
     final rows = ((wsize.height - otherHeight) / tileSize.height).floor();
-    _lifeMap.setSize(cols, rows);
+    MapController.to.setSize(rows, cols);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: (){
-              Navigator.push(
-                context, 
-                MaterialPageRoute(builder: (context) => const SettingPage()),);
-            },
-            iconSize: 46,
-            alignment: Alignment.topRight,
-
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            TileBoard(_lifeMap, tileSize, true),
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-              Text(
-                "Pattern: $patternId",
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.black54),
-              )
-            ]),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                ElevatedButton(
-                    onPressed: () => {_resetMap()}, child: const Text('Reset')),
-                _stepButton(),
-                ElevatedButton(
-                  child: Text(_runCaption()),
-                  onPressed: () => {_runToggle()},
-                ),
-                ElevatedButton(
-                    onPressed: () {
-                      FlutterClipboard.copy(_lifeMap.dump()).then((value) {
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Text("saved to clipboard"),
-                                actions: <Widget>[
-                                  TextButton(
-                                    child: const Text('OK'),
-                                    onPressed: () =>
-                                        Navigator.pop(context, 'OK'),
-                                  )
-                                ],
-                              );
-                            });
-                      });
-                    },
-                    child: const Text('Save')),
-                ElevatedButton(
-                    onPressed: () => {
-                          FlutterClipboard.paste().then((value) {
-                            setState(() {
-                              _lifeMap.load(value);
-                            });
-                          })
-                        },
-                    child: const Text('load'))
-              ],
-            )
+        appBar: AppBar(
+          title: Text(title),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SettingPage()),
+                );
+              },
+              iconSize: 46,
+              alignment: Alignment.topRight,
+            ),
           ],
         ),
-      ),
-    );
+        body: GetBuilder<MapController>(
+          builder: (mc) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                const TileBoard(true),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    _stepButton(),
+                    ElevatedButton(
+                      child:
+                          mc.running ? const Text("Stop") : const Text("Start"),
+                      onPressed: () => {_runToggle()},
+                    ),
+                    ElevatedButton(
+                        onPressed: () {
+                          FlutterClipboard.copy(MapController.to.dump())
+                              .then((value) {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text("saved to clipboard"),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: const Text('OK'),
+                                        onPressed: () =>
+                                            Navigator.pop(context, 'OK'),
+                                      )
+                                    ],
+                                  );
+                                });
+                          });
+                        },
+                        child: const Text('Save')),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ));
   }
 }

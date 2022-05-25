@@ -1,24 +1,7 @@
 import 'package:flutter/material.dart';
-import 'life_panel.dart';
-
+import 'package:get/get.dart';
+import 'home_page.dart';
 
 void main() {
-  runApp(const LifeGameApp());
+  runApp(const GetMaterialApp(home: HomePage()));
 }
-
-class LifeGameApp extends StatelessWidget {
-  const LifeGameApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Simple LifeGame',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const LifePanel(title: 'SLG Home'),
-    );
-  }
-}
-
-

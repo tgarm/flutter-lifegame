@@ -16,12 +16,22 @@ class LifeMap {
   LifeMap(int w, int h) {
     setSize(w, h);
   }
-  setSize(int cols, int rows) {
-    if (rows > 0) {
-      if (cols != tileCols || rows != tileRows || _map.isEmpty) {
-        clear(cols: cols, rows: rows);
+  setSize(int rows, int cols) {
+    List<List> newMap = List.generate(rows, (index) => List.filled(cols, 0));
+    final xOffset = ((cols - tileCols) / 2).floor();
+    final yOffset = ((rows - tileRows) / 2).floor();
+    if (tileCols > 0 && tileRows > 0) {
+      for (int y = 0; y < rows; y++) {
+        if (y - yOffset < 0 || y - yOffset >= tileRows) continue;
+        for (int x = 0; x < cols; x++) {
+          if (x - xOffset < 0 || x - xOffset >= tileCols) continue;
+          if (isAlive(y - yOffset, x - xOffset)) {
+            newMap[y][x] = 1;
+          }
+        }
       }
     }
+    _map = newMap;
   }
 
   clear({int cols = 0, int rows = 0}) {
