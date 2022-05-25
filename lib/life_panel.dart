@@ -9,7 +9,6 @@ class LifePanel extends StatelessWidget {
   const LifePanel({Key? key, required this.title}) : super(key: key);
 
   final String title;
-  static const tileSize = Size(32, 32);
   static const otherHeight = 200;
 
   void _runToggle() {
@@ -36,6 +35,7 @@ class LifePanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final wsize = MediaQuery.of(context).size;
+    final tileSize = MapController.to.tileSize;
     final cols = (wsize.width / tileSize.width).floor();
     final rows = ((wsize.height - otherHeight) / tileSize.height).floor();
     MapController.to.setSize(rows, cols);

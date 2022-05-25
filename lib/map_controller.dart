@@ -25,12 +25,14 @@ class MapController extends GetxController {
   get running => _running;
 
   void start() {
-    if (_ticker ??= null) {
+    if (_ticker!=null) {
+    }else{
       _ticker =
           RestartableTimer(const Duration(milliseconds: 400), _singleTick);
     }
     _ticker.reset();
     _running = true;
+    update();
   }
 
   void stop() {
@@ -39,6 +41,7 @@ class MapController extends GetxController {
       _ticker = null;
     }
     _running = false;
+    update();
   }
 
   get tileRows => _map.value.tileRows;
