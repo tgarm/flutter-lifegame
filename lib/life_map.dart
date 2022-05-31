@@ -106,6 +106,17 @@ class LifeMap {
   }
 
   String dump() {
+    List<List> _out = [];
+    _out.add([_map[0].length, _map.length]);
+    for(int y=0;y<_map.length;y++){
+      final line = _map[y];
+      for(int x=0;x<line.length; x++){
+        if(line[x]>0){
+          _out.add([x,y]);
+        }
+      }
+    }
+    return jsonEncode(_out);
     List<String> lines = [];
     for (final mapl in _map) {
       String line = utf8.decode(
@@ -117,6 +128,15 @@ class LifeMap {
   }
 
   void load(String data) {
+    final inl = jsonDecode(data);
+    _map = List.generate(inl[0][1], (index) => List.filled(inl[0][0],0));
+    
+    for(int i=1;i<inl.length; i++){
+      final x = inl[i][0];
+      final y = inl[i][1];
+      _map[y][x] = 1;
+    }
+    if(_map.isEmpty){
     final List parsed = jsonDecode(data);
     final List<List> map = [];
     for (final line in parsed) {
@@ -125,6 +145,8 @@ class LifeMap {
           List.generate(line.length, (int index) => lineCodes[index] - 0x20));
     }
     _map = map;
+
+    }
   }
 
   Future<int> loadLexi(int index) async {

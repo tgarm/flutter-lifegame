@@ -16,6 +16,7 @@ class HomePage extends StatelessWidget {
                   const Text("SLG Home"),
                   mc.dirty ? const Text("*") : Container(),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
                       ElevatedButton(
                           onPressed: () {

@@ -72,6 +72,10 @@ class LifePanel extends StatelessWidget {
                           mc.running ? const Text("Stop") : const Text("Start"),
                       onPressed: () => {_runToggle()},
                     ),
+                    ElevatedButton(onPressed: () async {
+                      MapController.to.load(await FlutterClipboard.paste());
+                      
+                    }, child: const Text('Load')),
                     ElevatedButton(
                         onPressed: () {
                           FlutterClipboard.copy(MapController.to.dump())
